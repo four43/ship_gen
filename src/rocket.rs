@@ -112,7 +112,7 @@ pub mod rocket {
             if self.max_height < 3 {
                 panic!("Cannot build a rocket shorter than 3 sections")
             }
-            let nose_cone = self.choose_next_part(&PARTS_BIN, vec![PartType::BODY]);
+            let nose_cone = self.choose_next_part(&PARTS_BIN, &[PartType::BODY]);
             self.append_section(nose_cone);
 
             let mut rng = rand::thread_rng();
@@ -120,16 +120,16 @@ pub mod rocket {
 
             // Add body or transition
             while (self.part_height_remaining() as f32 / self.height as f32) > body_decor_ratio && self.part_height_remaining() > 3 {
-                let next_part = self.choose_next_part_buffer(&PARTS_BIN, vec![PartType::BODY], 2);
+                let next_part = self.choose_next_part_buffer(&PARTS_BIN, &[PartType::BODY], 2);
                 self.append_section(next_part);
             }
             // Finish up and add engine
-            let engine_part = self.choose_next_part(&PARTS_BIN, vec![PartType::ENGINE]);
+            let engine_part = self.choose_next_part(&PARTS_BIN, &[PartType::ENGINE]);
             self.append_section(engine_part);
 
             // Add decoration (exhaust or nose)
             while self.part_height_remaining() > 0 {
-                let decoration_part = self.choose_next_part(&PARTS_BIN, vec![PartType::TIP, PartType::EXHAUST]);
+                let decoration_part = self.choose_next_part(&PARTS_BIN, &[PartType::TIP, PartType::EXHAUST]);
                 if decoration_part.type_ == PartType::TIP {
                     self.prepend_section(decoration_part);
                 } else {
@@ -138,7 +138,7 @@ pub mod rocket {
             }
         }
 
-        fn choose_next_part_buffer(&self, parts_list: &'static[Part], part_types: Vec<PartType>, height_buffer: usize) -> &'static Part {
+        fn choose_next_part_buffer(&self, parts_list: &'static[Part], part_types: &'static[PartType], height_buffer: usize) -> &'static Part {
             let mut rng = rand::thread_rng();
             let possible_parts = parts_list.iter().filter(|p| {
                 part_types.contains(&p.type_)
@@ -151,7 +151,7 @@ pub mod rocket {
             possible_parts[dist.sample(&mut rng)]
         }
 
-        fn choose_next_part(&self, parts_list: &'static[Part], part_types: Vec<PartType>)-> &'static Part {
+        fn choose_next_part(&self, parts_list: &'static[Part], part_types: &'static[PartType])-> &'static Part {
             self.choose_next_part_buffer(parts_list, part_types, 0)
         }
     }
